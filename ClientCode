@@ -2,10 +2,10 @@ import socket
 from time import sleep
 from time import time
 
-host = '10.133.0.179'
+host = '10.133.0.179' #IP address of the Pi
 port = 63309
 
-def setupSocket():
+def setupSocket(): #establish connection
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.connect((host, port))
     return s
@@ -17,7 +17,7 @@ s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect((host, port))
 
 
-while True:
+while True: #allows user to enter an infinite amount of commands to server Pi until exited
     command = input ("Enter your command:  ")
     
     if command == 'EXIT':
