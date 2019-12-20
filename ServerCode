@@ -1,0 +1,140 @@
+import time
+from time import sleep
+import RPi.GPIO as GPIO
+
+GPIO.setwarnings(False)
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(6, GPIO.OUT)
+GPIO.setup(5, GPIO.OUT)
+
+pwmR = GPIO.PWM(6, 50) #duty cycle length 1.6
+pwmL = GPIO.PWM(5, 50)
+pwmR.start(0)
+pwmL.start(0)
+
+
+
+import socket
+
+host = ''
+port = 63309
+
+def setupServer(): #set up carPi as a server
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    print("Socket created.")
+   
+    try:
+        s.bind((host, port))
+    except socket.error as msg:
+        print(msg)
+       
+    print("Socket bind complete.")
+    return s
+
+def setupConnection(): #sets up connection between pi and laptop
+    global s
+    s.listen(1) # Allows one connection at a time.
+    conn, address = s.accept()
+    print("Connected to: " + address[0] + ":" + str(address[1]))
+    return conn
+
+def dataTransfer(conn): #receiving data and using data as input for command
+    # A big loop that sends/receives data until told not to.
+    while True:
+        data = conn.recv(1024) # receive the data
+        data = data.decode('utf-8')
+        # Split the data such that you separate the command from the rest of the data.
+        dataMessage = data.split(' ', 1)
+        command = dataMessage[0]
+       
+        if command == 'w': #forward
+            print(command)
+   
+            s1 = -100
+            s2 = 100
+            pwmR.ChangeFrequency(-0.004327*s1+46.513037)
+            pwmR.ChangeDutyCycle(0.00865*s1+6.97393)
+            pwmL.ChangeFrequency(-0.004327*s2+46.513037)
+            pwmL.ChangeDutyCycle(0.00865*s2+6.97393)
+            time.sleep(3)
+            s1 = 0
+            s2 = 0
+            pwmR.ChangeFrequency(-0.004327*s1+46.513037)
+            pwmR.ChangeDutyCycle(0.00865*s1+6.97393)
+            pwmL.ChangeFrequency(-0.004327*s2+46.513037)
+            pwmL.ChangeDutyCycle(0.00865*s2+6.97393)
+           
+       
+        elif command == 's': #backwards
+            print(command)
+            s1 = 100
+            s2 = -100
+            pwmR.ChangeFrequency(-0.004327*s1+46.513037)
+            pwmR.ChangeDutyCycle(0.00865*s1+6.97393)
+            pwmL.ChangeFrequency(-0.004327*s2+46.513037)
+            pwmL.ChangeDutyCycle(0.00865*s2+6.97393)
+            time.sleep(3)
+            s1 = 0
+            s2 = 0
+            pwmR.ChangeFrequency(-0.004327*s1+46.513037)
+            pwmR.ChangeDutyCycle(0.00865*s1+6.97393)
+            pwmL.ChangeFrequency(-0.004327*s2+46.513037)
+            pwmL.ChangeDutyCycle(0.00865*s2+6.97393)
+           
+        elif command == 'd': #right
+            print(command)
+            s1 = 100
+            s2 = 40
+            pwmR.ChangeFrequency(-0.004327*s1+46.513037)
+            pwmR.ChangeDutyCycle(0.00865*s1+6.97393)
+            pwmL.ChangeFrequency(-0.004327*s2+46.513037)
+            pwmL.ChangeDutyCycle(0.00865*s2+6.97393)
+            time.sleep(1.5)
+            s1 = 0
+            s2 = 0
+            pwmR.ChangeFrequency(-0.004327*s1+46.513037)
+            pwmR.ChangeDutyCycle(0.00865*s1+6.97393)
+            pwmL.ChangeFrequency(-0.004327*s2+46.513037)
+            pwmL.ChangeDutyCycle(0.00865*s2+6.97393)
+           
+        elif command == 'a': #left
+            print(command)
+            s1 = -40
+            s2 = -100
+            pwmR.ChangeFrequency(-0.004327*s1+46.513037)
+            pwmR.ChangeDutyCycle(0.00865*s1+6.97393)
+            pwmL.ChangeFrequency(-0.004327*s2+46.513037)
+            pwmL.ChangeDutyCycle(0.00865*s2+6.97393)
+            time.sleep(1.5)
+            s1 = 0
+            s2 = 0
+            pwmR.ChangeFrequency(-0.004327*s1+46.513037)
+            pwmR.ChangeDutyCycle(0.00865*s1+6.97393)
+            pwmL.ChangeFrequency(-0.004327*s2+46.513037)
+            pwmL.ChangeDutyCycle(0.00865*s2+6.97393)
+           
+        if command == 'f': #stop
+            print(command)
+            s1 = 0
+            s2 = 0
+            pwmR.ChangeFrequency(-0.004327*s1+46.513037)
+            pwmR.ChangeDutyCycle(0.00865*s1+6.97393)
+            pwmL.ChangeFrequency(-0.004327*s2+46.513037)
+            pwmL.ChangeDutyCycle(0.00865*s2+6.97393)
+            time.sleep(2)
+
+           
+    conn.close()
+       
+
+# Main
+s = setupServer()
+
+
+try:
+    while True:
+        conn = setupConnection()
+        dataTransfer(conn)
+except:
+    conn.close()
+
