@@ -1,0 +1,27 @@
+import socket
+from time import sleep
+from time import time
+
+host = '10.133.0.179'
+port = 63309
+
+def setupSocket():
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.connect((host, port))
+    return s
+
+#Main
+
+#Socket Setup
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s.connect((host, port))
+
+
+while True:
+    command = input ("Enter your command:  ")
+    
+    if command == 'EXIT':
+        s.send(str.encode(command))
+        break
+    else:
+        s.send(str.encode(command))
